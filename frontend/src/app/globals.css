@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/*
+ * La interfaz se diseñó en oscuro (viene así de la rama del compañero) y el
+ * mapa SVG dibuja sus propios colores de calles y edificios. Se fija el tema
+ * en vez de seguir al sistema para que el contraste del mapa sea siempre el
+ * mismo, en cualquier máquina donde se presente.
+ */
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
