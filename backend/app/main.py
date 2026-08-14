@@ -1,20 +1,5 @@
-"""API del simulador de ruta de entrega.
-
-El backend hace la logica (permutaciones, distancias, amplificacion) y el
-frontend solo dibuja. Cada endpoint responde en una sola llamada con todo lo
-que el canvas necesita para animar, sin estado de sesion en el servidor.
-
-Endpoints
----------
-GET  /health                    salud
-GET  /api/v1/puntos             genera el mapa
-POST /api/v1/clasico/simular    traza del modo clasico
-POST /api/v1/cuantico/simular   traza del modo cuantico
-GET  /api/v1/escenario          mapa + los dos modos en una sola llamada
-
-El ultimo es el que conviene usar desde el frontend: garantiza por
-construccion que ambos modos corren sobre el mismo mapa.
-La idea de resolver todo en una llamada viene de la rama del compañero.
+"""API del simulador. Cada endpoint devuelve la traza completa en una sola
+llamada, sin estado de sesion: el frontend la reproduce al ritmo que quiera.
 """
 
 from __future__ import annotations
@@ -45,7 +30,6 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# El front de Next.js corre en :3000 en desarrollo.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -66,13 +50,7 @@ def health() -> dict:
 def puntos(
     n: int = Query(5, ge=2, le=8, description="Cuantos destinos generar."),
     grid_size: int = Query(GRID_SIZE, ge=2, le=20, description="Manzanas por lado."),
-    semilla: Optional[int] = Query(
-        None,
-        description=(
-            "Fija el mapa. Con la misma semilla, el modo clasico y el cuantico "
-            "corren sobre exactamente los mismos puntos."
-        ),
-    ),
+    semilla: Optional[int] = Query(None, description="Fija el mapa de forma reproducible."),
 ) -> PuntosResponse:
     """Genera un mapa de destinos sobre nodos de la cuadricula."""
     generados = _generar(n=n, grid_size=grid_size, semilla=semilla)
@@ -85,11 +63,7 @@ def puntos(
 
 @app.post("/api/v1/clasico/simular", response_model=SimulacionClasicaResponse)
 def simular_clasico(payload: SimulacionClasicaRequest) -> SimulacionClasicaResponse:
-    """Corre la simulacion clasica y devuelve la traza completa.
-
-    La respuesta trae los (n-1)! pasos en orden de evaluacion. El frontend los
-    reproduce uno por uno al ritmo que decida: el backend no controla el tempo.
-    """
+    """Traza del modo clasico: un paso por cada ruta evaluada."""
     puntos_dominio = _a_dominio(payload.puntos)
     try:
         r = clasico.simular(
@@ -105,11 +79,8 @@ def simular_clasico(payload: SimulacionClasicaRequest) -> SimulacionClasicaRespo
 
 @app.post("/api/v1/cuantico/simular", response_model=SimulacionCuanticaResponse)
 def simular_cuantico(payload: SimulacionCuanticaRequest) -> SimulacionCuanticaResponse:
-    """Corre la amplificacion de probabilidad y devuelve la traza completa.
-
-    Cada paso trae la probabilidad de TODAS las rutas: todas siguen existiendo
-    a la vez (superposicion) y el frontend las dibuja simultaneamente usando la
-    probabilidad como opacidad.
+    """Traza del modo cuantico: un paso por iteracion, con la probabilidad de
+    todas las rutas.
     """
     puntos_dominio = _a_dominio(payload.puntos)
     try:
@@ -132,11 +103,9 @@ def escenario(
     orden: OrdenEvaluacion = Query(OrdenEvaluacion.SECUENCIAL),
     semilla: Optional[int] = Query(None),
 ) -> EscenarioResponse:
-    """Genera el mapa y corre los DOS modos sobre el, en una sola llamada.
+    """Genera el mapa y corre los dos modos sobre el.
 
-    Es el endpoint que conviene usar desde el frontend: al resolver todo de un
-    tiro, ambos modos comparten los mismos puntos por construccion y no hay que
-    coordinar semillas entre dos peticiones.
+    Es el que usa el frontend: asi ambos comparten los mismos puntos.
     """
     generados = _generar(n=n, grid_size=grid_size, semilla=semilla)
     try:
@@ -163,11 +132,6 @@ def escenario(
         rutas_evaluadas_clasico=r_clasico.rutas_evaluadas,
         iteraciones_cuantico=r_cuantico.iteraciones,
     )
-
-
-# ---------------------------------------------------------------------------
-# Auxiliares
-# ---------------------------------------------------------------------------
 
 
 def _generar(n: int, grid_size: int, semilla: Optional[int]) -> List[Punto]:

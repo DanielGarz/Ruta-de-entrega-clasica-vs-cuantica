@@ -4,21 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { factorial, obtenerEscenario } from "@/lib/api";
 import type { Escenario, EstadoSimulacion, ModoSimulacion } from "@/lib/tipos";
 
-/**
- * Toda la lógica de la pantalla.
- *
- * El backend ya resolvió las dos simulaciones y mandó las trazas completas;
- * aquí solo se reproducen con un temporizador. Ningún cálculo de rutas ni de
- * distancias vive en el frontend.
- *
- * Diferencia importante contra la versión de la rama del compañero: allá cada
- * click pedía un escenario NUEVO, así que el modo clásico y el cuántico nunca
- * corrían sobre el mismo mapa. Aquí el escenario se pide una vez y los dos
- * modos se animan sobre él — que es lo único que hace comparable el resultado.
- * Para cambiar de mapa está el botón aparte.
- */
-
-/** Cada cuánto avanza un frame. El cuántico va más lento: son 2-3 iteraciones. */
+// El cuántico va más lento porque son 2 o 3 iteraciones contra 24 rutas.
 const INTERVALO_MS_CLASICO = 240;
 const INTERVALO_MS_CUANTICO = 1100;
 
@@ -31,9 +17,7 @@ export function useSimulacion() {
   const [estado, setEstado] = useState<EstadoSimulacion>("cargando");
   const [error, setError] = useState<string | null>(null);
 
-  /** Índice del frame que se está mostrando dentro de la traza del modo activo. */
   const [indicePaso, setIndicePaso] = useState(0);
-  /** Ruta ganadora, ya terminada la animación. */
   const [rutaGanadora, setRutaGanadora] = useState<number[] | null>(null);
 
   const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -54,7 +38,7 @@ export function useSimulacion() {
     setModoActivo(null);
   }, [limpiarIntervalo]);
 
-  /** Pide un escenario nuevo y deja el mapa listo, sin animar nada todavía. */
+  /** Pide un escenario nuevo y deja el mapa listo, sin animar nada. */
   const cargarEscenario = useCallback(
     async (opciones: { n: 4 | 5; cerrada: boolean }) => {
       reiniciarVista();
@@ -73,12 +57,11 @@ export function useSimulacion() {
     [reiniciarVista],
   );
 
-  // Mapa inicial al abrir la página.
   useEffect(() => {
     cargarEscenario({ n: 5, cerrada: false });
   }, [cargarEscenario]);
 
-  /** Reproduce la traza del modo elegido sobre el escenario ya cargado. */
+  /** Anima la traza del modo elegido sobre el escenario ya cargado. */
   const iniciar = useCallback(
     (modo: ModoSimulacion) => {
       if (!escenario) return;
@@ -133,12 +116,9 @@ export function useSimulacion() {
     [cargarEscenario, n],
   );
 
-  /** Vuelve a animar el mismo modo sobre el mismo mapa. */
   const repetir = useCallback(() => {
     if (modoActivo) iniciar(modoActivo);
   }, [modoActivo, iniciar]);
-
-  // ---- Lo que el mapa necesita pintar en este frame ----------------------
 
   const pasoClasico =
     modoActivo === "clasico" && escenario
@@ -165,37 +145,27 @@ export function useSimulacion() {
       ? (pasoClasico?.indice ?? 0)
       : (pasoCuantico?.indice ?? 0);
 
-  // Lo que el mapa debe pintar en este frame.
-  //
-  // Al terminar la búsqueda se descartan TODAS las rutas y solo sobrevive la
-  // ganadora: el mapa queda limpio con la respuesta, sin la maraña de las
-  // candidatas perdedoras encima. Mientras corre sí se ven, porque ver a la
-  // simulación descartarlas es justamente lo que se está mostrando.
+  // Al terminar solo se dibuja la ganadora; las descartadas desaparecen.
   const finalizado = estado === "finalizado";
 
   return {
-    // configuración
     n,
     cerrada,
     cambiarN,
     cambiarCerrada,
-    // datos
     escenario,
     error,
     estado,
     modoActivo,
     corriendo,
-    // acciones
     iniciar,
     nuevoMapa,
     repetir,
-    // frame actual (para la barra de estado)
     pasoClasico,
     pasoCuantico,
     rutaGanadora,
     contador,
     totalFrames,
-    // lo que dibuja el mapa: al finalizar solo queda la ganadora
     rutaClasicaId: finalizado ? null : (pasoClasico?.ruta_id ?? null),
     mejorParcial: finalizado ? null : (pasoClasico?.mejor_ruta ?? null),
     probabilidades: finalizado ? null : (pasoCuantico?.probabilidades ?? null),

@@ -14,29 +14,15 @@ import {
 } from "@/lib/mapa-geometria";
 import type { Escenario, ProbabilidadRuta, Punto } from "@/lib/tipos";
 
-/**
- * El mapa de la ciudad. Portado de `Mapa/CityMap.tsx` de la rama del compañero.
- *
- * Dibuja la cuadrícula (calles + edificios), los puntos de entrega y las rutas
- * encima. NO calcula nada: recibe todo ya resuelto por el backend.
- *
- * Los dos modos se ven distinto a propósito, y esa diferencia ES el proyecto:
- *
- *   - Clásico: UNA ruta visible a la vez, en rojo. Un bit está en un solo
- *     estado a la vez.
- *   - Cuántico: TODAS las rutas a la vez, con la opacidad de cada una atada a
- *     su probabilidad. Eso es la superposición.
- */
-
+/** Dibuja la cuadrícula, los puntos y las rutas ya resueltas por el backend. */
 interface Props {
   escenario: Escenario | null;
-  /** Modo clásico: la única ruta visible en este frame. */
+  /** Clásico: la única ruta visible en este frame. */
   rutaClasicaId: number | null;
-  /** Modo clásico: la campeona vigente, al fondo. */
+  /** Clásico: la campeona vigente, al fondo. */
   mejorParcial: number[] | null;
-  /** Modo cuántico: probabilidad de todas las rutas en este frame. */
+  /** Cuántico: probabilidad de todas las rutas en este frame. */
   probabilidades: ProbabilidadRuta[] | null;
-  /** Ruta ganadora final, en verde por encima de todo. */
   rutaGanadora: number[] | null;
 }
 
@@ -51,8 +37,7 @@ export default function CityMap({
   probabilidades,
   rutaGanadora,
 }: Props) {
-  // Sin escenario mostramos una cuadrícula vacía del tamaño por default para
-  // que el layout no salte cuando lleguen los datos.
+  // Cuadrícula vacía por default para que el layout no salte al cargar.
   const gridSize = escenario?.grid_size ?? 6;
   const { ancho, alto } = tamanoLienzo(gridSize);
 
@@ -89,10 +74,8 @@ export default function CityMap({
         role="img"
         aria-label="Mapa de la ciudad con las rutas de entrega"
       >
-        {/* Fondo = calles */}
         <rect x={0} y={0} width={ancho} height={alto} fill="#f5f5f5" />
 
-        {/* Edificios */}
         {edificios.map((b) => {
           const esquina = nodoAPixeles(b);
           const tamano = ESPACIADO_NODO - ANCHO_CALLE;
@@ -109,7 +92,6 @@ export default function CityMap({
           );
         })}
 
-        {/* Contorno */}
         <rect
           x={2}
           y={2}
@@ -120,9 +102,7 @@ export default function CityMap({
           strokeWidth={4}
         />
 
-        {/* ---- MODO CUANTICO: todas las rutas a la vez ----
-            La opacidad sale de la probabilidad real de cada ruta, así que las
-            malas se desvanecen solas conforme avanza la amplificación. */}
+        {/* Cuántico: todas a la vez, con opacidad según su probabilidad. */}
         {probabilidades?.map((pr) => {
           const ruta = rutasPorId.get(pr.ruta_id);
           if (!ruta) return null;
@@ -140,7 +120,7 @@ export default function CityMap({
           );
         })}
 
-        {/* ---- MODO CLASICO: la campeona vigente, tenue al fondo ---- */}
+        {/* Clásico: la campeona vigente, tenue al fondo. */}
         {mejorParcial && (
           <path
             d={construirTrazoRuta(mejorParcial, puntosPorId)}
@@ -153,7 +133,7 @@ export default function CityMap({
           />
         )}
 
-        {/* ---- MODO CLASICO: la ruta que se está probando ahora ---- */}
+        {/* Clásico: la ruta que se está probando. */}
         {rutaClasica && (
           <RutaConFlechas
             orden={rutaClasica.orden}
@@ -163,7 +143,6 @@ export default function CityMap({
           />
         )}
 
-        {/* ---- Ganadora final, por encima de todo ---- */}
         {rutaGanadora && (
           <RutaConFlechas
             orden={rutaGanadora}
@@ -173,7 +152,6 @@ export default function CityMap({
           />
         )}
 
-        {/* ---- Puntos de entrega ---- */}
         {escenario?.puntos.map((p) => {
           const { x, y } = nodoAPixeles(p);
           const esDeposito = p.id === 0;
@@ -205,7 +183,6 @@ export default function CityMap({
   );
 }
 
-/** Una ruta con flechitas de dirección sobre cada tramo. */
 function RutaConFlechas({
   orden,
   puntosPorId,

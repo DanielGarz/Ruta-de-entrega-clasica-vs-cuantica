@@ -8,16 +8,6 @@ import type {
   PasoCuantico,
 } from "@/lib/tipos";
 
-/**
- * Panel de control y barra de estado. Portado de `components/Controles.tsx` de
- * la rama del compañero, con el control de ruta cerrada que expone nuestro
- * backend.
- *
- * La distancia es siempre Manhattan y no es configurable: la ciudad es una
- * cuadrícula y el vehículo circula por las calles, así que no tendría sentido
- * ofrecer una métrica que le permita cortar en diagonal.
- */
-
 interface PanelProps {
   n: 4 | 5;
   cerrada: boolean;
@@ -159,10 +149,7 @@ function BotonOpcion({
   );
 }
 
-/**
- * Barra de estado. Muestra el contador que pide la actividad: rutas evaluadas
- * en clásico, iteraciones en cuántico.
- */
+/** Contador: rutas evaluadas en clásico, iteraciones en cuántico. */
 interface BarraProps {
   escenario: Escenario | null;
   modoActivo: ModoSimulacion | null;
@@ -210,8 +197,7 @@ export function BarraEstado({
         <span className="text-neutral-500"> / {totalFrames}</span>
       </span>
 
-      {/* Datos del frame en curso. Al finalizar desaparecen: el mapa ya solo
-          muestra la ganadora, y seguir enseñando "esta ruta" lo contradiría. */}
+      {/* Al finalizar desaparecen: el mapa ya solo muestra la ganadora. */}
       {estado === "corriendo" && modoActivo === "clasico" && pasoClasico && (
         <>
           <span className="text-neutral-300">
