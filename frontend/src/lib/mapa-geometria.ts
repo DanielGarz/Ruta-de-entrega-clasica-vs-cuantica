@@ -4,6 +4,7 @@ export const ESPACIADO_NODO = 80;
 export const ANCHO_CALLE = 22;
 export const MARGEN = 50;
 
+/** Pasa una coordenada de la cuadricula a pixeles del SVG. */
 export function nodoAPixeles(punto: { x: number; y: number }) {
   return {
     x: MARGEN + punto.x * ESPACIADO_NODO,
@@ -11,6 +12,7 @@ export function nodoAPixeles(punto: { x: number; y: number }) {
   };
 }
 
+/** Tamaño del SVG segun que tan grande sea la cuadricula. */
 export function tamanoLienzo(gridSize: number) {
   const lado = MARGEN * 2 + gridSize * ESPACIADO_NODO;
   return { ancho: lado, alto: lado };
@@ -108,10 +110,12 @@ export function probabilidadAOpacidad(probabilidad: number): number {
   return 0.05 + 0.95 * Math.sqrt(p);
 }
 
+/** Mapa de puntos por id, para no recorrer el arreglo cada vez. */
 export function indexarPuntos(puntos: Punto[]): Map<number, Punto> {
   return new Map(puntos.map((p) => [p.id, p]));
 }
 
+/** Mapa de rutas por id, para no recorrer el arreglo cada vez. */
 export function indexarRutas(rutas: Ruta[]): Map<number, Ruta> {
   return new Map(rutas.map((r) => [r.id, r]));
 }

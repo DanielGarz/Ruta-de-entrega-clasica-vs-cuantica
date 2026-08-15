@@ -20,6 +20,7 @@ interface PanelProps {
   onNuevoMapa: () => void;
 }
 
+/** La fila de botones de arriba. */
 export function PanelControl({
   n,
   cerrada,
@@ -107,6 +108,7 @@ export function PanelControl({
   );
 }
 
+/** Un control con su etiqueta chiquita encima. */
 function Campo({
   etiqueta,
   children,
@@ -122,6 +124,7 @@ function Campo({
   );
 }
 
+/** Boton que se marca con borde azul cuando esta activo. */
 function BotonOpcion({
   texto,
   activo,
@@ -161,6 +164,7 @@ interface BarraProps {
   rutaGanadora: number[] | null;
 }
 
+/** La linea de texto con el contador y el resultado. */
 export function BarraEstado({
   escenario,
   modoActivo,

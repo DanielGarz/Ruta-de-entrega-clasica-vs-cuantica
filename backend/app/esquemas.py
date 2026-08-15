@@ -22,18 +22,24 @@ class PuntoOut(BaseModel):
 
 
 class RutaOut(BaseModel):
+    """Una ruta con su distancia."""
+
     id: int
     orden: List[int]
     distancia: float
 
 
 class PuntosResponse(BaseModel):
+    """Los puntos generados para el mapa."""
+
     puntos: List[PuntoOut]
     grid_size: int = GRID_SIZE
     semilla: Optional[int] = None
 
 
 class _BaseSimulacionRequest(BaseModel):
+    """Lo que comparten las peticiones de los dos modos."""
+
     puntos: List[PuntoOut] = Field(
         ...,
         min_length=2,
@@ -45,10 +51,14 @@ class _BaseSimulacionRequest(BaseModel):
 
 
 class SimulacionClasicaRequest(_BaseSimulacionRequest):
+    """Peticion del modo clasico."""
+
     orden: OrdenEvaluacion = OrdenEvaluacion.SECUENCIAL
 
 
 class SimulacionCuanticaRequest(_BaseSimulacionRequest):
+    """Peticion del modo cuantico."""
+
     iteraciones: Optional[int] = Field(
         None,
         ge=0,
@@ -58,6 +68,8 @@ class SimulacionCuanticaRequest(_BaseSimulacionRequest):
 
 
 class PasoClasicoOut(BaseModel):
+    """Un paso del modo clasico: la ruta que se probo."""
+
     indice: int = Field(..., description="Contador de rutas evaluadas, arranca en 1.")
     ruta_id: int
     ruta: List[int]
@@ -68,6 +80,8 @@ class PasoClasicoOut(BaseModel):
 
 
 class SimulacionClasicaResponse(BaseModel):
+    """Respuesta del modo clasico, con todos sus pasos."""
+
     modo: str = "clasico"
     puntos: List[PuntoOut]
     rutas: List[RutaOut]
@@ -83,12 +97,16 @@ class SimulacionClasicaResponse(BaseModel):
 
 
 class ProbabilidadRutaOut(BaseModel):
+    """La probabilidad de una ruta en un paso."""
+
     ruta_id: int
     distancia: float
     probabilidad: float
 
 
 class PasoCuanticoOut(BaseModel):
+    """Un paso del modo cuantico: la probabilidad de todas las rutas."""
+
     indice: int = Field(..., description="0 = superposicion inicial.")
     probabilidades: List[ProbabilidadRutaOut]
     visibles: List[int]
@@ -97,6 +115,8 @@ class PasoCuanticoOut(BaseModel):
 
 
 class SimulacionCuanticaResponse(BaseModel):
+    """Respuesta del modo cuantico, con todos sus pasos."""
+
     modo: str = "cuantico"
     puntos: List[PuntoOut]
     rutas: List[RutaOut]

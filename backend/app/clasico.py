@@ -22,6 +22,8 @@ from .geometria import (
 
 
 class OrdenEvaluacion(str, Enum):
+    """En que orden se prueban las rutas."""
+
     SECUENCIAL = "secuencial"
     ALEATORIO = "aleatorio"
 
@@ -41,6 +43,8 @@ class PasoClasico:
 
 @dataclass
 class ResultadoClasico:
+    """Todo lo que necesita el frontend para animar el modo clasico."""
+
     puntos: List[Punto]
     rutas: List[RutaMedida]
     cerrada: bool

@@ -43,6 +43,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health() -> dict:
+    """Para comprobar que el servidor esta arriba."""
     return {"status": "ok"}
 
 
@@ -135,6 +136,7 @@ def escenario(
 
 
 def _generar(n: int, grid_size: int, semilla: Optional[int]) -> List[Punto]:
+    """Genera los puntos y convierte el error en un 422."""
     try:
         return generar_puntos(n=n, grid_size=grid_size, semilla=semilla)
     except ValueError as exc:
@@ -142,6 +144,7 @@ def _generar(n: int, grid_size: int, semilla: Optional[int]) -> List[Punto]:
 
 
 def _a_dominio(puntos) -> List[Punto]:
+    """Pasa los puntos que llegan en la peticion a objetos Punto."""
     ids = [p.id for p in puntos]
     if len(set(ids)) != len(ids):
         raise HTTPException(status_code=422, detail="los ids de los puntos deben ser unicos")
@@ -149,6 +152,7 @@ def _a_dominio(puntos) -> List[Punto]:
 
 
 def _clasico_out(r) -> SimulacionClasicaResponse:
+    """Pasa el resultado del modulo clasico a la forma que devuelve la API."""
     return SimulacionClasicaResponse(
         puntos=[p.__dict__ for p in r.puntos],
         rutas=[ruta.__dict__ for ruta in r.rutas],
@@ -165,6 +169,7 @@ def _clasico_out(r) -> SimulacionClasicaResponse:
 
 
 def _cuantico_out(r) -> SimulacionCuanticaResponse:
+    """Pasa el resultado del modulo cuantico a la forma que devuelve la API."""
     return SimulacionCuanticaResponse(
         puntos=[p.__dict__ for p in r.puntos],
         rutas=[ruta.__dict__ for ruta in r.rutas],

@@ -30,6 +30,7 @@ const ROJO = "#ef4444";
 const VERDE = "#22c55e";
 const AMBAR = "#f59e0b";
 
+/** Pinta el mapa completo: calles, edificios, puntos y las rutas de cada modo. */
 export default function CityMap({
   escenario,
   rutaClasicaId,
@@ -183,6 +184,7 @@ export default function CityMap({
   );
 }
 
+/** Dibuja una ruta con una flecha en cada tramo para ver el orden del recorrido. */
 function RutaConFlechas({
   orden,
   puntosPorId,

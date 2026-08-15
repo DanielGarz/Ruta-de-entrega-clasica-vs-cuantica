@@ -21,6 +21,8 @@ TOLERANCIA = 1e-9
 
 @dataclass(frozen=True)
 class Punto:
+    """Un destino del mapa. x e y son coordenadas de la cuadricula, no pixeles."""
+
     id: int
     x: float
     y: float
@@ -28,6 +30,7 @@ class Punto:
 
 
 def distancia(a: Punto, b: Punto) -> float:
+    """Distancia entre dos puntos yendo por las calles: |dx| + |dy|."""
     return abs(a.x - b.x) + abs(a.y - b.y)
 
 
@@ -60,6 +63,8 @@ def total_rutas(n_puntos: int) -> int:
 
 @dataclass(frozen=True)
 class RutaMedida:
+    """Una ruta ya calculada, con el orden en que se visitan los puntos."""
+
     id: int
     orden: List[int]
     distancia: float
@@ -124,4 +129,5 @@ def generar_puntos(
 
 
 def _etiqueta(i: int) -> str:
+    """Nombre visible del punto: Base, A, B, C..."""
     return _ETIQUETAS[i] if i < len(_ETIQUETAS) else "P%d" % i

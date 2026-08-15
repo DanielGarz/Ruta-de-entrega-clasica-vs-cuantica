@@ -3,6 +3,7 @@ import type { Escenario, OpcionesEscenario } from "./tipos";
 export const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
 
+/** Calcula (n-1)! para saber cuantas rutas hay antes de pedirle nada al backend. */
 export function factorial(n: number): number {
   let resultado = 1;
   for (let i = 2; i <= n; i++) resultado *= i;

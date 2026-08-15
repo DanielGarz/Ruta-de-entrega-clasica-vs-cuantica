@@ -8,6 +8,7 @@ import type { Escenario, EstadoSimulacion, ModoSimulacion } from "@/lib/tipos";
 const INTERVALO_MS_CLASICO = 240;
 const INTERVALO_MS_CUANTICO = 1100;
 
+/** Maneja el estado de la pantalla: pide el escenario al backend y va pasando los frames de la animacion con un temporizador. */
 export function useSimulacion() {
   const [n, setN] = useState<4 | 5>(5);
   const [cerrada, setCerrada] = useState(false);

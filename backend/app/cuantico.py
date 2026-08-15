@@ -28,6 +28,8 @@ FACTOR_UMBRAL_VISIBLE = 0.5
 
 @dataclass
 class ProbabilidadRuta:
+    """Que tan probable es una ruta en un momento dado."""
+
     ruta_id: int
     distancia: float
     probabilidad: float
@@ -46,6 +48,8 @@ class PasoCuantico:
 
 @dataclass
 class ResultadoCuantico:
+    """Todo lo que necesita el frontend para animar el modo cuantico."""
+
     puntos: List[Punto]
     rutas: List[RutaMedida]
     cerrada: bool
@@ -142,6 +146,7 @@ def _armar_paso(
     umbral: float,
     visibles_previas: Sequence[int],
 ) -> PasoCuantico:
+    """Arma un frame con la probabilidad de cada ruta en este momento."""
     probabilidades = [a * a for a in amplitudes]
 
     detalle = [
@@ -169,6 +174,7 @@ def _armar_paso(
 
 
 def _muestrear(rng: random.Random, probabilidades: Sequence[float]) -> int:
+    """Elige una ruta al azar, dandole mas peso a las mas probables."""
     total = sum(probabilidades)
     objetivo = rng.random() * total
     acumulado = 0.0
